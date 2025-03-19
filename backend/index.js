@@ -13,7 +13,9 @@ const fs = require('fs');
 dotenv.config();
 mongoose.set('strictQuery', true);
 
-mongoose.connect(process.env.MONGO_URL, (err) => {
+const mongoURI = process.env.MONGODB_URL || 'mongodb://localhost:27017/';
+
+mongoose.connect(mongoURI, (err) => {
   if (err) throw err;
   console.log('Connected to MongoDB successfully!');
 });
