@@ -13,7 +13,9 @@ const fs = require('fs');
 dotenv.config();
 mongoose.set('strictQuery', true);
 
-mongoose.connect(process.env.MONGO_URL, (err) => {
+const mongoURI = process.env.MONGODB_URL || 'mongodb://localhost:27017/';
+
+mongoose.connect(mongoURI, (err) => {
   if (err) throw err;
   console.log('Connected to MongoDB successfully!');
 });
@@ -254,22 +256,35 @@ wss.on('connection', (connection, req) => {
     clearTimeout(connection.deathTimer);
   });
 
-  // read username and id from the cookie for this connection
-  const cookies = req.headers.cookie;
-  if (cookies) {
-    const tokenCookieString = cookies.split(';').find(str => str.startsWith('token='));
-    if (tokenCookieString) {
-      const token = tokenCookieString.split('=')[1];
-      if (token) {
-        jwt.verify(token, jwtSecret, {}, (err, userData) => {
-          if (err) throw err;
-          const {userId, username} = userData;
-          connection.userId = userId;
-          connection.username = username;
-        });
+    // Extract and verify JWT from cookies
+    try {
+      const cookies = req.headers.cookie;
+      if (cookies) {
+        const tokenCookieString = cookies.split(';').find(str => str.trim().startsWith('token='));
+        if (tokenCookieString) {
+          const token = tokenCookieString.split('=')[1];
+          if (token) {
+            jwt.verify(token, jwtSecret, {}, (err, userData) => {
+              if (err) {
+                console.error('JWT Verification Failed:', err.message);
+                connection.terminate(); // Close connection if token is invalid
+                return;
+              }
+              const { userId, username } = userData;
+              connection.userId = userId;
+              connection.username = username;
+              console.log(`User connected: ${username} (${userId})`);
+            });
+          }
+        }
+      } else {
+        console.error('No token found in cookies');
+        connection.terminate();
       }
+    } catch (error) {
+      console.error('Error in WebSocket Authentication:', error.message);
+      connection.terminate();
     }
-  }
 
   connection.on('message', async (message) => {
     const messageData = JSON.parse(message.toString());

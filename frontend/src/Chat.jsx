@@ -166,6 +166,38 @@ export default function Chat() {
 
   const messagesWithoutDupes = uniqBy(messages, '_id');
 
+
+  function formatDateLabel(date) {
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+    
+    const msgDate = new Date(date);
+    if (msgDate.toDateString() === today.toDateString()) {
+      return "Today";
+    } else if (msgDate.toDateString() === yesterday.toDateString()) {
+      return "Yesterday";
+    } else {
+      return msgDate.toLocaleDateString(undefined, { weekday: 'long' });
+    }
+  }
+
+  function groupMessagesByDate(messages) {
+    const grouped = {};
+    messages.forEach(msg => {
+      const dateKey = new Date(msg.createdAt).toDateString();
+      if (!grouped[dateKey]) {
+        grouped[dateKey] = [];
+      }
+      grouped[dateKey].push(msg);
+    });
+    return grouped;
+  }
+
+
+  const groupedMessages = groupMessagesByDate(messages);
+
+
   return (
     <div className="flex h-screen">
 
@@ -238,38 +270,50 @@ export default function Chat() {
     {!!selectedUserId && (
       <div className="relative h-full">
         <div className="overflow-y-scroll absolute top-0 left-0 right-0 bottom-2 p-4 scrollbar-thin scrollbar-thumb-green-400 scrollbar-track-transparent">
-          {messagesWithoutDupes.map(message => (
-            <div key={message._id} className={(message.sender === id ? 'text-right' : 'text-left')}>
-              <div className={"text-left inline-block p-3 my-2 rounded-xl text-sm shadow-md " +(message.sender === id ? 'bg-green-500 text-white' : 'bg-white text-gray-800 border border-gray-300')}>
-                {message.text}
-                <button
-                  onClick={() => deleteMessage(message._id)}
-                  className="ml-2 text-red-500 text-sm hover:text-red-700 transition"
-                >
-                  Delete
-                </button>
-                {message.file && (
-                  <div>
-                    <a target="_blank" className="flex items-center gap-1 border-b text-black hover:text-green-600 transition" href={axios.defaults.baseURL + '/uploads/' + message.file}>
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                        <path fillRule="evenodd" d="M18.97 3.659a2.25 2.25 0 00-3.182 0l-10.94 10.94a3.75 3.75 0 105.304 5.303l7.693-7.693a.75.75 0 011.06 1.06l-7.693 7.693a5.25 5.25 0 11-7.424-7.424l10.939-10.94a3.75 3.75 0 115.303 5.304L9.097 18.835l-.008.008-.007.007-.002.002-.003.002A2.25 2.25 0 015.91 15.66l7.81-7.81a.75.75 0 011.061 1.06l-7.81 7.81a.75.75 0 001.054 1.068L18.97 6.84a2.25 2.25 0 000-3.182z" clipRule="evenodd" />
-                      </svg>
-                      {message.file}
-                    </a>
-                  </div>
-                )}
-              </div>
+
+
+        
+        {Object.entries(groupedMessages).map(([date, msgs]) => (
+      <div key={date}>
+        <div className="text-center text-gray-600 font-semibold my-2">
+          {formatDateLabel(date)}
+        </div>
+
+        {msgs.map(message => ( // Changed from messagesWithoutDupes to msgs
+          <div key={message._id} className={message.sender === id ? 'text-right' : 'text-left'}>
+            <div className={"text-left inline-block p-3 my-2 rounded-xl text-sm shadow-md " + (message.sender === id ? 'bg-green-500 text-white' : 'bg-white text-gray-800 border border-gray-300')}>
+              {message.text}
+              <button
+                onClick={() => deleteMessage(message._id)}
+                className="ml-2 text-red-500 text-sm hover:text-red-700 transition"
+              >
+                Delete
+              </button>
+              {message.file && (
+                <div>
+                  <a target="_blank" className="flex items-center gap-1 border-b text-black hover:text-green-600 transition" href={axios.defaults.baseURL + '/uploads/' + message.file}>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                      <path fillRule="evenodd" d="M18.97 3.659a2.25 2.25 0 00-3.182 0l-10.94 10.94a3.75 3.75 0 105.304 5.303l7.693-7.693a.75.75 0 011.06 1.06l-7.693 7.693a5.25 5.25 0 11-7.424-7.424l10.939-10.94a3.75 3.75 0 115.303 5.304L9.097 18.835l-.008.008-.007.007-.002.002-.003.002A2.25 2.25 0 015.91 15.66l7.81-7.81a.75.75 0 011.061 1.06l-7.81 7.81a.75.75 0 001.054 1.068L18.97 6.84a2.25 2.25 0 000-3.182z" clipRule="evenodd" />
+                    </svg>
+                    {message.file}
+                  </a>
+                </div>
+              )}
             </div>
-          ))}
-          {typingStatus && (
-            <div className="flex items-center gap-2 text-lg font-semibold text-gray-600 mt-2">
-              Typing
-              <span className="w-3 h-3 bg-green-500 rounded-full animate-bounce"></span>
-              <span className="w-3 h-3 bg-blue-500 rounded-full animate-bounce delay-200"></span>
-              <span className="w-3 h-3 bg-gray-500 rounded-full animate-bounce delay-400"></span>
-            </div>
-          )}
-          <div ref={divUnderMessages}></div>
+          </div>
+        ))}
+
+        {typingStatus && (
+          <div className="flex items-center gap-2 text-lg font-semibold text-gray-600 mt-2">
+            Typing
+            <span className="w-3 h-3 bg-green-500 rounded-full animate-bounce"></span>
+            <span className="w-3 h-3 bg-blue-500 rounded-full animate-bounce delay-200"></span>
+            <span className="w-3 h-3 bg-gray-500 rounded-full animate-bounce delay-400"></span>
+          </div>
+        )}
+        <div ref={divUnderMessages}></div>
+      </div>
+    ))}
         </div>
       </div>
     )}
