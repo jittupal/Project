@@ -349,7 +349,7 @@ wss.on('connection', (connection, req) => {
       [...wss.clients]
         .filter(c => c.userId === recipient)
         .forEach(c => c.send(JSON.stringify({
-          typing,
+          isTyping: typing,
           sender: connection.userId,
         })));
     } 
