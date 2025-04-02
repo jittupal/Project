@@ -327,7 +327,7 @@ wss.on('connection', (connection, req) => {
 
   connection.on('message', async (message) => {
     const messageData = JSON.parse(message.toString());
-    const { recipient, text, file, typing } = messageData;
+    const { recipient, text, file, typing, _id } = messageData;
 
     // New Typing Indicator Feature
     if (typing !== undefined) {
@@ -353,12 +353,13 @@ wss.on('connection', (connection, req) => {
         });
       }
       const messageDoc = await Message.create({
+         _id: _id,
         sender: connection.userId,
         recipient,
         text,
         file: file ? filename : null,
       });
-      console.log('created message');
+     console.log('Created message with ID:', messageDoc._id);
       [...wss.clients]
         .filter(c => c.userId === recipient || c.userId === connection.userId)
         .forEach(c => c.send(JSON.stringify({
