@@ -19,7 +19,19 @@ export default function RegisterAndLoginForm() {
   const [showResetPrompt, setShowResetPrompt] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   
+  // ✅ Password Strength State
+  const [strength, setStrength] = useState("weak");
 
+  // ✅ Function to determine password strength
+  function checkStrength(password) {
+    if (password.length > 8 && /[A-Z]/.test(password) && /[0-9]/.test(password) || password.length > 15) {
+      setStrength("strong");
+    } else if (password.length > 5) {
+      setStrength("medium");
+    } else {
+      setStrength("weak");
+    }
+  }
   
 
   async function handleSubmit(ev) {
@@ -112,11 +124,54 @@ export default function RegisterAndLoginForm() {
           />
           <input
             value={password}
-            onChange={(ev) => setPassword(ev.target.value)}
+            onChange={(ev) => {
+              setPassword(ev.target.value);
+              if (isLoginOrRegister === "register") checkStrength(ev.target.value);
+            }}
             type="password"
             placeholder="Password"
             className="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-purple-500 bg-white bg-opacity-80 placeholder-gray-600 text-gray-900 shadow-lg"
           />
+
+ {/* ✅ Show Strength Indicator ONLY during Registration */}
+{isLoginOrRegister === "register" && password.length > 0 && (
+  <div className="mt-3">
+    {/* Password Strength Bar with Gradient & Animation */}
+    <div className="h-2 w-full rounded-full bg-gray-800/50 overflow-hidden">
+      <div
+        className={`h-full transition-all duration-500 ease-in-out rounded-full`}
+        style={{
+          width: strength === "strong" ? "100%" : strength === "medium" ? "66%" : "33%",
+          background: strength === "strong"
+            ? "linear-gradient(to right, #00c853, #b2ff59)"
+            : strength === "medium"
+            ? "linear-gradient(to right, #ff9800, #ffeb3b)"
+            : "linear-gradient(to right, #d50000, #ff1744)",
+          boxShadow: "0px 0px 8px rgba(255, 255, 255, 0.4)",
+        }}
+      ></div>
+    </div>
+
+    {/* Strength Label with Cool Effect */}
+    <p
+      className={`mt-2 text-sm font-semibold text-center uppercase tracking-widest transition-all duration-300 ease-in-out`}
+      style={{
+        color: strength === "strong" ? "#00c853" : strength === "medium" ? "#ff9800" : "#d50000",
+        textShadow: strength === "strong"
+          ? "0px 0px 10px #00c853"
+          : strength === "medium"
+          ? "0px 0px 10px #ff9800"
+          : "0px 0px 10px #d50000",
+        fontWeight: "bold",
+        letterSpacing: "1px",
+      }}
+    >
+      {strength.toUpperCase()}
+    </p>
+  </div>
+)}
+
+
          <button className="w-full bg-gradient-to-r from-purple-600 to-indigo-500 hover:from-pink-500 hover:to-orange-400 hover:scale-105 transition duration-300 ease-in-out text-white font-bold py-4 rounded-xl shadow-xl">
   {isLoginOrRegister === "register" ? "Register" : "Login"}
 </button>

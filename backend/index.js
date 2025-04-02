@@ -7,8 +7,11 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const User = require('./models/User');
 const Message = require('./models/Message');
+const multer = require("multer");
 const ws = require('ws');
 const fs = require('fs');
+const path = require("path");
+
 
 dotenv.config();
 mongoose.set('strictQuery', true);
@@ -30,6 +33,36 @@ app.use(cors({
   credentials: true,
   origin: process.env.CLIENT_URL,
 }));
+
+
+app.use("/profilePhoto", express.static("uploads/profilePhoto"));
+
+// Set up storage for profile photos
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, "uploads/profilePhoto");
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = Date.now() + path.extname(file.originalname);
+    cb(null, uniqueName);
+  },
+});
+
+const upload = multer({ storage });
+
+app.post("/upload", upload.single("profilePhoto"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: "No file uploaded" });
+  }
+
+  console.log("File uploaded:", req.file); // ✅ Check if file is received
+
+  res.json({ filePath: `/profilePhoto/${req.file.filename}` });
+});
 
 async function getUserDataFromRequest(req) {
   return new Promise((resolve, reject) => {
@@ -227,7 +260,12 @@ const server = app.listen(4040);
 
 const wss = new ws.WebSocketServer({server});
 
+// Now, export `wss`
+module.exports = { wss };
 
+// Import `editMessage.js` AFTER `wss` is defined
+const editMessageRouter = require('./editMessage');
+app.use('/api/messages', editMessageRouter); // Now `wss` is available
 
 wss.on('connection', (connection, req) => {
 
@@ -321,7 +359,7 @@ wss.on('connection', (connection, req) => {
       });
       console.log('created message');
       [...wss.clients]
-        .filter(c => c.userId === recipient)
+        .filter(c => c.userId === recipient || c.userId === connection.userId)
         .forEach(c => c.send(JSON.stringify({
           text,
           sender: connection.userId,

@@ -7,6 +7,7 @@ const MessageSchema = new mongoose.Schema({
   recipient: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
   text: String,
   file: String,
+  edited: { type: Boolean, default: false }, // ✅ Add this field
 }, {timestamps:true});
 
 const MessageModel = mongoose.model('Message', MessageSchema);
