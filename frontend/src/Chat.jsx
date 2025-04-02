@@ -225,62 +225,71 @@ export default function Chat() {
 
 // ********IMPORTANT***********
 
+const [profilePhoto, setProfilePhoto] = useState(null);
+const [profileImages, setProfileImages] = useState([]); // ✅ Store all uploaded images
+const [currentIndex, setCurrentIndex] = useState(0);
+const [isPaused, setIsPaused] = useState(false);
+const [isHovered, setIsHovered] = useState(false);
 
-  // const [profilePhoto, setProfilePhoto] = useState(null);
+// ✅ Fetch all saved profile photos from the backend when the component mounts
+useEffect(() => {
+  const fetchProfileImages = async () => {
+    try {
+      const response = await fetch("http://localhost:4040/profilePhotos");
+      const data = await response.json();
 
-  // const handleProfilePhotoUpload = async (event) => {
-  //   const file = event.target.files[0];
-  //   if (!file) return;
-  
-  //   const formData = new FormData();
-  //   formData.append("profilePhoto", file);
-  
-  //   try {
-  //     const response = await fetch("http://localhost:4040/upload", {
-  //       method: "POST",
-  //       body: formData,
-  //     });
-  
-  //     if (!response.ok) {
-  //       throw new Error(`HTTP error! Status: ${response.status}`);
-  //     }
-  
-  //     const data = await response.json();
-  //     console.log("Uploaded file response:", data); // ✅ Debugging log
-  
-  //     if (data.filePath) {
-  //       setProfilePhoto(`http://localhost:4040${data.filePath}`); // ✅ Fix: Use absolute path
-  //     }
-  //   } catch (error) {
-  //     console.error("Error uploading file:", error);
-  //   }
-  // };
-  
-  
-  const profileImages = [
-    "/profiles/profile1.jpg",
-    "/profiles/profile2.jpg",
-    "/profiles/profile3.jpg",
-    "/profiles/profile4.jpg",
-    "/profiles/profile5.jpg",
-    "/profiles/profile6.jpg",
-    "/profiles/profile7.jpg",
-  ];
+      if (data.images) {
+        setProfileImages(data.images.map(img => `http://localhost:4040${img}`));
+      }
+    } catch (error) {
+      console.error("Error fetching profile images:", error);
+    }
+  };
 
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
+  fetchProfileImages();
+}, []); // Runs only once when component mounts
 
-  useEffect(() => {
-    if (isPaused) return; // Don't start interval if paused
+// ✅ Handle profile photo upload and add it to the images array
+const handleProfilePhotoUpload = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
 
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % profileImages.length);
-    }, 2000);
+  const formData = new FormData();
+  formData.append("profilePhoto", file);
 
-    return () => clearInterval(interval);
-  }, [isPaused]); // Re-run effect when isPaused changes
+  try {
+    const response = await fetch("http://localhost:4040/upload", {
+      method: "POST",
+      body: formData,
+    });
 
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("Uploaded file response:", data); // ✅ Debugging log
+
+    if (data.filePath) {
+      const newImagePath = `http://localhost:4040${data.filePath}`;
+      setProfilePhoto(newImagePath); // ✅ Set newly uploaded image
+      setProfileImages(prev => [...prev, newImagePath]); // ✅ Add new image to rotation
+    }
+  } catch (error) {
+    console.error("Error uploading file:", error);
+  }
+};
+
+// ✅ Automatically rotate profile images unless paused
+useEffect(() => {
+  if (isPaused || profileImages.length === 0) return; // Stop if paused or no images
+
+  const interval = setInterval(() => {
+    setCurrentIndex(prevIndex => (prevIndex + 1) % profileImages.length);
+  }, 2000);
+
+  return () => clearInterval(interval);
+}, [isPaused, profileImages]); // Re-run when isPaused or profileImages change
 
 
   const onUpdateMessage = (id, newText) => {
@@ -381,7 +390,7 @@ export default function Chat() {
 {/* Container for Profile & User Info */}
 <div className="flex items-center space-x-4 w-full">
 
-<div 
+{/* <div 
       className="relative w-[100px] h-[100px] flex items-center justify-center" 
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -393,7 +402,7 @@ export default function Chat() {
       />
 
       {/* Animated Pause Button with a Creative Color Combination */}
-      <AnimatePresence>
+      {/* <AnimatePresence>
         {isHovered && (
           <motion.button 
             initial={{ opacity: 0, scale: 0.8 }}
@@ -409,27 +418,55 @@ export default function Chat() {
           </motion.button>
         )}
       </AnimatePresence>
-    </div>
+   </div> } */}
 
 {/*************IMPORTANT********** */}
 
 
 
   {/* Profile Photo (Left Side) */}
-  {/* <label className="relative cursor-pointer">
-    {profilePhoto ? (
-      <img 
-      src={profilePhoto}  // ✅ Directly use the state variable
-        alt="Profile" 
-        className="w-[100px] h-[100px] rounded-full border-2 border-white shadow-md object-cover"
-      />
-    ) : (
-      <div className="w-20 h-20 rounded-full border-2 border-white bg-gray-300 flex items-center justify-center text-gray-600 shadow-md">
-        📷
-      </div>
-    )}
-    <input type="file" className="hidden" onChange={handleProfilePhotoUpload} />
-  </label> */}
+  <label className="relative cursor-pointer">
+    <div 
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={() => document.getElementById('fileInput').click()} // Ensure clicking the image triggers file upload
+    >
+      {profileImages.length > 0 ? (
+        <img 
+          src={profileImages[currentIndex]} // ✅ Use dynamic images from backend
+          alt="Profile" 
+          className="w-[100px] h-[100px] rounded-full border-2 border-white shadow-md object-cover"
+        />
+      ) : (
+        <div className="w-[100px] h-[100px] rounded-full border-2 border-white bg-gray-300 flex items-center justify-center text-gray-600 shadow-md">
+          📷
+        </div>
+      )}
+      
+      {/* Animated Pause Button with a Creative Color Combination */}
+      <AnimatePresence>
+        {isHovered && (
+          <motion.button 
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                      bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm font-semibold px-3 py-1.5 
+                      rounded-full shadow-lg hover:shadow-xl hover:from-pink-500 hover:to-purple-600 transition-all duration-300"
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent triggering file input
+              setIsPaused((prev) => !prev);
+            }}
+          >
+            {isPaused ? "▶ Resume" : "⏸ Pause"}
+          </motion.button>
+        )}
+      </AnimatePresence>
+    </div>
+    
+    <input id="fileInput" type="file" className="hidden" onChange={handleProfilePhotoUpload} />
+  </label>
 
 {/*************IMPORTANT********** */}
 
