@@ -235,11 +235,11 @@ const [isHovered, setIsHovered] = useState(false);
 useEffect(() => {
   const fetchProfileImages = async () => {
     try {
-      const response = await fetch("http://localhost:4040/profilePhotos");
+      const response = await fetch("https://project-1-jibe.onrender.com/profilePhotos");
       const data = await response.json();
 
       if (data.images) {
-        setProfileImages(data.images.map(img => `http://localhost:4040${img}`));
+        setProfileImages(data.images.map(img => `https://project-1-jibe.onrender.com${img}`));
       }
     } catch (error) {
       console.error("Error fetching profile images:", error);
@@ -258,7 +258,7 @@ const handleProfilePhotoUpload = async (event) => {
   formData.append("profilePhoto", file);
 
   try {
-    const response = await fetch("http://localhost:4040/upload", {
+    const response = await fetch("https://project-1-jibe.onrender.com/upload", {
       method: "POST",
       body: formData,
     });
@@ -271,7 +271,7 @@ const handleProfilePhotoUpload = async (event) => {
     console.log("Uploaded file response:", data); // ✅ Debugging log
 
     if (data.filePath) {
-      const newImagePath = `http://localhost:4040${data.filePath}`;
+      const newImagePath = `https://project-1-jibe.onrender.com${data.filePath}`;
       setProfilePhoto(newImagePath); // ✅ Set newly uploaded image
       setProfileImages(prev => [...prev, newImagePath]); // ✅ Add new image to rotation
     }
