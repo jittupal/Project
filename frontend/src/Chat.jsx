@@ -57,7 +57,7 @@ export default function Chat() {
         setMessages(prev => ([...prev, { ...messageData }]));
 
       }
-    } else if ('typing' in messageData) {
+    } else if ('isTyping' in messageData) {
       if (messageData.sender === selectedUserId) {
         setTypingStatus(true);
         setTimeout(() => setTypingStatus(false), 2000);
