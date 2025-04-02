@@ -287,7 +287,7 @@ export default function Chat() {
     );
   
     // Send update request to backend (if needed)
-    axios.put(`wss://project-1-jibe.onrender.com/api/messages/edit/${id}`, 
+    axios.put(`https://project-1-jibe.onrender.com/api/messages/edit/${id}`, 
       { text: newText },
       { withCredentials: true }
     )
