@@ -118,12 +118,16 @@ export default function Chat() {
   
   
 
-  function sendMessage(ev, file = null) {
+ function sendMessage(ev, file = null) {
     if (ev) ev.preventDefault();
+
+    const tempId = generateObjectId(); 
+
     ws.send(JSON.stringify({
       recipient: selectedUserId,
       text: newMessageText,
       file,
+      _id: tempId,  // ✅ Send this ID to backend
     }));
  // ✅ Play sound only if sound is enabled
  if (soundEnabled && (newMessageText.trim() !== "" || file)) { 
@@ -142,7 +146,7 @@ export default function Chat() {
         text: newMessageText,
         sender: id,
         recipient: selectedUserId,
-        _id: generateObjectId(),  // ✅ Generates a temporary valid string ID
+        _id: tempId,  // ✅ Use the same ID
       }]));
     }
     
