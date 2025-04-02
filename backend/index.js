@@ -65,6 +65,21 @@ app.post("/upload", upload.single("profilePhoto"), (req, res) => {
   res.json({ filePath: `/profilePhoto/${req.file.filename}` });
 });
 
+// ✅ New endpoint to fetch all profile images from the uploads folder
+app.get("/profilePhotos", (req, res) => {
+  const uploadDir = path.join(__dirname, "uploads/profilePhoto");
+  
+  fs.readdir(uploadDir, (err, files) => {
+    if (err) {
+      return res.status(500).json({ error: "Unable to read profile photos" });
+    }
+
+    // Send all images as an array of file paths
+    const images = files.map(file => `/profilePhoto/${file}`);
+    res.json({ images });
+  });
+});
+
 async function getUserDataFromRequest(req) {
   return new Promise((resolve, reject) => {
     const token = req.cookies?.token;
