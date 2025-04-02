@@ -289,7 +289,12 @@ export default function Chat() {
     // Send update request to backend (if needed)
     axios.put(`https://project-1-jibe.onrender.com/api/messages/edit/${id}`, 
       { text: newText },
-      { withCredentials: true }
+      {
+    withCredentials: true, // ✅ Ensures cookies are sent
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}` // ✅ Fallback if cookies fail
+    }
+  }
     )
     .then(response => {
       console.log('Message updated:', response.data);
