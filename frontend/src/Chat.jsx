@@ -358,7 +358,7 @@ useEffect(() => {
               username={userId === id ? `Me(${onlinePeopleExclOurUser[userId]})` : onlinePeopleExclOurUser[userId]} // Add "Me()"
               onClick={() => {setSelectedUserId(userId);console.log({userId})}}
               darkMode={darkMode} // Pass darkMode from the parent component
-              isTyping={onlinePeopleExclOurUser[userId].isTyping} // Assuming `isTyping` is part of each user in `offlinePeople`
+             isTyping={onlinePeopleExclOurUser[userId]?.isTyping || false} // Assuming `isTyping` is part of each user in `offlinePeople`
               selected={userId === selectedUserId}
               className={`transition-all duration-300 ease-in-out rounded-lg p-4 font-semibold shadow-lg cursor-pointer 
                 ${userId === selectedUserId ? 
