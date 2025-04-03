@@ -542,14 +542,15 @@ useEffect(() => {
 
 </div>
 
-         {showPlayer && (
-    <div style={{ width: "100%" }}>
+        {showPlayer && (
+    <div style={{ width: "100%", maxWidth: "100vw" }}>
         <iframe 
             style={{ 
                 borderRadius: "12px", 
-                width: "100% !important", 
-                height: "200px !important", 
-                minHeight: "200px" 
+                width: "100%", 
+                height: "200px", 
+                minHeight: "200px",
+                maxHeight: "200px"
             }} 
             src="https://open.spotify.com/embed/playlist/3mM2juAwWBAMIgzIHAzHT6?utm_source=generator" 
             frameBorder="0" 
