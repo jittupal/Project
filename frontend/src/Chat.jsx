@@ -623,6 +623,15 @@ useEffect(() => {
                 ✏️
               </button>
             )}
+               {/* Speak Button - Visible on Hover */}
+            <button 
+              onClick={() => {
+                const msg = new SpeechSynthesisUtterance(message.text);
+                window.speechSynthesis.speak(msg);
+              }}
+              className="absolute top-0 left-0 text-sm text-green-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              📢
+            </button>
           </>
         )}
       </div>
