@@ -337,7 +337,9 @@ useEffect(() => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-  
+
+
+    const [showPlayer, setShowPlayer] = useState(false);
 
   return (
     <div className={`flex h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
@@ -523,7 +525,31 @@ useEffect(() => {
     {darkMode ? "🌞 Light Mode" : "🌙 Dark Mode"}
 </button>
 
+
+  <button 
+    onClick={() => setShowPlayer(!showPlayer)}
+    className={`py-2 px-4 ml-2 rounded-lg shadow-lg transition-all duration-300 font-medium tracking-wide
+      ${darkMode 
+        ? 'bg-[#1E1F29] hover:bg-[#282A36] text-[#00FFD1]'  // Dark futuristic background with neon cyan text
+        : 'bg-[#00FFD1] hover:bg-[#00E6BF] text-black'}       // Neon cyan for light mode
+    `}
+>
+    {showPlayer ? "⏹ Hide Music" : "▶ Play Music"}
+</button>
 </div>
+
+           {showPlayer && (
+               <iframe 
+    style={{ borderRadius: "12px" }} 
+    src="https://open.spotify.com/embed/playlist/3mM2juAwWBAMIgzIHAzHT6?utm_source=generator" 
+    width="100%" 
+    height="152" 
+    frameBorder="0" 
+    allowFullScreen 
+    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+    loading="lazy"
+></iframe>
+            )}
 </div>
    )}
 
