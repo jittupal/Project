@@ -542,18 +542,18 @@ useEffect(() => {
 
 </div>
 
-            {showPlayer && (
-              <iframe 
-              style={{ borderRadius: "12px" }} 
-              src="https://open.spotify.com/embed/playlist/3mM2juAwWBAMIgzIHAzHT6?utm_source=generator" 
-              width="100%" 
-              height="200" 
-              frameBorder="0" 
-              allowFullScreen 
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-              loading="lazy"
-          ></iframe>
-            )}
+          {showPlayer && (
+    <div style={{ width: "100%", position: "fixed", bottom: "0", left: "0", zIndex: "1000" }}>
+        <iframe 
+            style={{ borderRadius: "12px", width: "100%", height: "200px" }} 
+            src="https://open.spotify.com/embed/playlist/3mM2juAwWBAMIgzIHAzHT6?utm_source=generator" 
+            frameBorder="0" 
+            allowFullScreen 
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+            loading="lazy"
+        ></iframe>
+    </div>
+)}
 </div>
    )}
 
