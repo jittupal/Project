@@ -474,7 +474,7 @@ useEffect(() => {
 
 
   {/* User Info & Logout Button (Right Side, Full Width) */}
-  <div className={`p-4 flex items-center justify-between rounded-md shadow-md border flex-1 w-full transition-all duration-300
+   <div className={`p-4 flex items-center justify-between rounded-md shadow-md border flex-1 w-full transition-all duration-300
       ${darkMode 
         ? "bg-gradient-to-r from-gray-800 via-gray-700 to-gray-900 text-white border-gray-600"
         : "bg-gradient-to-r from-blue-500 via-blue-400 to-green-300 text-white border-gray-400"}
@@ -526,7 +526,7 @@ useEffect(() => {
 </button>
 
 
-  <button 
+<button 
     onClick={() => setShowPlayer(!showPlayer)}
     className={`py-2 px-4 ml-2 rounded-lg shadow-lg transition-all duration-300 font-medium tracking-wide
       ${darkMode 
@@ -536,19 +536,23 @@ useEffect(() => {
 >
     {showPlayer ? "⏹ Hide Music" : "▶ Play Music"}
 </button>
+
+
+      
+
 </div>
 
-           {showPlayer && (
-               <iframe 
-    style={{ borderRadius: "12px" }} 
-    src="https://open.spotify.com/embed/playlist/3mM2juAwWBAMIgzIHAzHT6?utm_source=generator" 
-    width="100%" 
-    height="200" 
-    frameBorder="0" 
-    allowFullScreen 
-    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-    loading="lazy"
-></iframe>
+            {showPlayer && (
+              <iframe 
+              style={{ borderRadius: "12px" }} 
+              src="https://open.spotify.com/embed/playlist/3mM2juAwWBAMIgzIHAzHT6?utm_source=generator" 
+              width="100%" 
+              height="200" 
+              frameBorder="0" 
+              allowFullScreen 
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+              loading="lazy"
+          ></iframe>
             )}
 </div>
    )}
